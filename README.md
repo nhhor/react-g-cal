@@ -5,6 +5,7 @@
 | 3)    | [React Authentication with Twitter, Google, Facebook and Github](https://codeburst.io/react-authentication-with-twitter-google-facebook-and-github-862d59583105) |
 | 4)    | [adding google sign-in to your webapp — a react example](https://codeburst.io/adding-google-sign-in-to-your-webapp-a-react-example-dcec8c73cb9f)                 |
 | 5)    | [How to use Google Calendar API with React JS](https://www.sivadass.in/using-google-calendar-api-with-react-js/)                                                 |
+| 6)    | [react-hook-form](https://www.react-hook-form.com/)                                                                                                              |
 
 ---
 

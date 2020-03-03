@@ -3,14 +3,20 @@ import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 
+let CLIENT_ID = "xxx";
+
+let API_KEY = "xxx";
+
+let DISCOVERY_DOCS = "https://people.googleapis.com/$discovery/rest?version=v1";
+
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       isSignedIn: false,
-      err: null,
-      events: []
+      googleUser: "",
+      contacts: []
     };
   }
 
@@ -19,13 +25,17 @@ class App extends Component {
 
     window.gapi.load("auth2", () => {
       this.auth2 = gapi.auth2.init({
-        client_id: "xxx"
+        apiKey: `${API_KEY}`,
+        discoveryDocs: `${DISCOVERY_DOCS}`,
+        client_id: `${CLIENT_ID}`,
+        scope: "https://www.googleapis.com/auth/contacts"
       });
 
       // this.auth2.attachClickHandler(document.querySelector('#loginButton'), {}, this.onLoginSuccessful.bind(this))
 
       this.auth2.then(() => {
         console.log("on init");
+
         this.setState({
           isSignedIn: this.auth2.isSignedIn.get()
         });
@@ -38,53 +48,48 @@ class App extends Component {
       var opts = {
         width: 200,
         height: 50,
-        client_id: "xxx",
+        client_id: `${CLIENT_ID}`,
         onsuccess: successCallback
       };
       gapi.signin2.render("loginButton", opts);
     });
-
-    this.getEvents();
-  }
-
-  getEvents() {
-    let that = this;
-    function start() {
-      gapi.client
-        .init({
-          apiKey: "xxx"
-        })
-        .then(function() {
-          return gapi.client.request({
-            path: `https://www.googleapis.com/calendar/v3/calendars/xxx/events?maxResults=15`
-          });
-        })
-        .then(
-          response => {
-            let events = response.result.items;
-            that.setState(
-              {
-                events
-              },
-              () => {
-                console.log(that.state.events);
-              }
-            );
-          },
-          function(reason) {
-            console.log(reason);
-          }
-        );
-    }
-    gapi.load("client", start);
   }
 
   onSuccess() {
     console.log("on success");
+    console.log("this.auth2: ", this.auth2);
     this.setState({
       isSignedIn: true,
       err: null
     });
+    var googleUser = this.auth2.currentUser.get().Qt.Ad;
+    this.setState({
+      googleUser: this.auth2.currentUser.get().Qt.Ad
+    });
+    console.log("users info: ", googleUser);
+
+    var access_token = this.auth2.currentUser.get().uc.access_token;
+    console.log("access_token: ", access_token);
+
+    const request = async () => {
+      console.log(`Bearer ${this.auth2.currentUser.get().uc.access_token}`);
+
+      const response = await fetch(
+        `https://people.googleapis.com/v1/people/me/connections?access_token=${
+          this.auth2.currentUser.get().uc.access_token
+        }&personFields=names`
+      );
+      const json = await response.json();
+      let items = json.connections;
+      console.log("!!!!!", json);
+      console.log("?????", items);
+
+      this.setState({
+        contacts: items
+      });
+    };
+
+    request();
   }
 
   onLoginFailed(err) {
@@ -96,7 +101,7 @@ class App extends Component {
 
   getContent() {
     if (this.state.isSignedIn) {
-      return <p>hello user, you're signed in </p>;
+      return <p>Hello {this.state.googleUser}, you are now signed in!</p>;
     } else {
       return (
         <div>
@@ -107,10 +112,6 @@ class App extends Component {
     }
   }
 
-  handleButton() {
-    console.log("test");
-  }
-
   render() {
     return (
       <div className="App">
@@ -119,8 +120,6 @@ class App extends Component {
           <h2>Sample App.</h2>
 
           {this.getContent()}
-          <br />
-          <button onClick={this.handleButton}> Button!</button>
         </header>
       </div>
     );
