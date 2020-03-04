@@ -2,6 +2,7 @@
 import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./App.css";
+import Contact from "./Contact";
 
 let CLIENT_ID = "xxx";
 
@@ -120,6 +121,13 @@ class App extends Component {
           <h2>Sample App.</h2>
 
           {this.getContent()}
+
+          {this.state.contacts.map(contact => (
+            <Contact
+              name={contact.names[0].displayName}
+              key={contact.resourceName}
+            />
+          ))}
         </header>
       </div>
     );
